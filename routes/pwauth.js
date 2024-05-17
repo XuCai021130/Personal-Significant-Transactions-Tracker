@@ -19,13 +19,14 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const User = require('../models/User')
-
+const app = express();
+app.use(express.static('public'));
 
 
 // This is an example of middleware
 // where we look at a request and print it on the console
 // before continuing on with other steps!
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
   console.log(`${req.method} ${req.url} ${new Date()}`);
   next();
 });
@@ -40,7 +41,7 @@ router.use(function(req, res, next) {
 // if the user hasn't logged in (or has logged out),
 // it sets the user and username to null just to be safe
 //
-router.use((req,res,next) => {
+router.use((req, res, next) => {
   if (req.session.username) {
     res.locals.loggedIn = true
     res.locals.username = req.session.username
@@ -56,7 +57,7 @@ router.use((req,res,next) => {
 })
 
 
-router.get("/login", (req,res) => {
+router.get("/login", (req, res) => {
   res.render("pwlogin")
 })
 
@@ -67,11 +68,21 @@ router.get("/login", (req,res) => {
 // if the passphrase from the form has the same encryption, then
 // the user has been authenticated
 router.post('/login',
-  async (req,res,next) => {
+  async (req, res, next) => {
     try {
-      const {username,passphrase} = req.body
-      const user = await User.findOne({username:username})
-      const isMatch = await bcrypt.compare(passphrase,user.passphrase );
+      // console.log("req.body: ", req.body)
+      const { username, passphrase, trueCaptcha, inputCaptcha } = req.body;
+      if (inputCaptcha.toLowerCase() !== trueCaptcha.toLowerCase()) {
+        console.log('Captcha is not matched');
+        console.log('user input:', inputCaptcha);
+        console.log('correct input:', trueCaptcha);
+        res.redirect('/login');
+        return;
+      }
+      const user = await User.findOne({ username: username })
+      // console.log("user", user);
+      // console.log("password:", passphrase)
+      const isMatch = await bcrypt.compare(passphrase, user.passphrase);
 
       if (isMatch) {
         req.session.username = username //req.body
@@ -83,7 +94,7 @@ router.post('/login',
         req.session.user = null
         res.redirect('/login')
       }
-    }catch(e){
+    } catch (e) {
       next(e)
     }
   })
@@ -94,54 +105,59 @@ router.post('/login',
 // it adds them to the User model and redirects to route
 // as an authenticated user.
 router.post('/signup',
-  async (req,res,next) =>{
+  async (req, res, next) => {
     try {
       // here we use destructuring to get fields from req.body
-      const {username,passphrase,passphrase2,age} = req.body
-      if (passphrase != passphrase2){
+
+      const { username, passphrase, passphrase2, SecurityQ1, SecurityQ2 } = req.body
+      if (passphrase != passphrase2) {
         res.redirect('/login')
-      }else {
+      } else {
         const encrypted = await bcrypt.hash(passphrase, saltRounds);
 
         // check to make sure that username is not already taken!!
-        const duplicates = await User.find({username})
-        
-        if (duplicates.length>0){
+        const duplicates = await User.find({ username })
+
+        if (duplicates.length > 0) {
           // it would be better to render a page with an error message instead of this plain text response
           res.send("username has already been taken, please go back and try another username")
-        }else {
+        } else {
           // the username has not been taken so create a new user and store it in the database
           const user = new User(
-            {username:username,
-             passphrase:encrypted,
-             age:age
+            {
+              username: username,
+              passphrase: encrypted,
+              SecurityQ1: SecurityQ1,
+              SecurityQ2: SecurityQ2,
             })
-          
+
           await user.save()
           req.session.username = user.username
           req.session.user = user
+          req.session.SecurityQ1 = user.SecurityQ1
+          req.session.SecurityQ2 = user.SecurityQ2
           res.redirect('/')
         }
-        
-        
+
+
       }
-    }catch(e){
+    } catch (e) {
       next(e)
     }
   })
 
-router.get('/logout', (req,res) => {
+router.get('/logout', (req, res) => {
   req.session.destroy()
   res.redirect('/');
 })
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
-    if (res.locals.loggedIn){
-      return next();
-    } else {
-      res.redirect('/login');
-    }
+  if (res.locals.loggedIn) {
+    return next();
+  } else {
+    res.redirect('/login');
+  }
 }
 
 router.isLoggedIn = isLoggedIn;

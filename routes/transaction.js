@@ -13,12 +13,12 @@ store using an object where the keys and values are lists of strings
 
 */
 
-isLoggedIn = (req,res,next) => {
-  if (res.locals.loggedIn) {
-    next()
-  } else {
-    res.redirect('/login')
-  }
+isLoggedIn = (req, res, next) => {
+    if (res.locals.loggedIn) {
+        next()
+    } else {
+        res.redirect('/login')
+    }
 }
 
 
@@ -28,16 +28,16 @@ router.get('/transaction/',
     async (req, res, next) => {
         const sortBy = req.query.sortBy
         let items = []
-        if(sortBy=='amount'){
+        if (sortBy == 'amount') {
             items =
                 await TransactionItem.find({ userId: req.user._id }).sort({ amount: -1 })
-        } else if(sortBy=='category'){
+        } else if (sortBy == 'category') {
             items =
                 await TransactionItem.find({ userId: req.user._id }).sort({ category: 1 })
-        } else if(sortBy=="description"){
+        } else if (sortBy == "description") {
             items =
                 await TransactionItem.find({ userId: req.user._id }).sort({ description: 1 })
-        } else if(sortBy=="date"){
+        } else if (sortBy == "date") {
             items =
                 await TransactionItem.find({ userId: req.user._id }).sort({ date: -1 })
         } else {
@@ -45,51 +45,52 @@ router.get('/transaction/',
                 await TransactionItem.find({ userId: req.user._id })
         }
 
-        res.render('transaction', { items });
+        res.render('transaction', { items, showHighValue: false });
     }
 )
 
 //* add the value in the body to the list associated to the key *
 router.post('/transaction/',
-  isLoggedIn,
-  async (req, res, next) => {
-     const new_date = new Date(req.body.year, req.body.month-1, req.body.day);
-      const transaction= new TransactionItem(
-        {description : req.body.description,
-         amount : parseInt(req.body.amount) ,
-         category : req.body.category,
-         date : new_date,
-         userId: req.user._id,
-         username: req.user.username
-        })
-      await transaction.save();
-      res.redirect('/transaction')
-});  
+    isLoggedIn,
+    async (req, res, next) => {
+        const new_date = new Date(req.body.year, req.body.month - 1, req.body.day);
+        const transaction = new TransactionItem(
+            {
+                description: req.body.description,
+                amount: parseInt(req.body.amount),
+                category: req.body.category,
+                date: new_date,
+                userId: req.user._id,
+                username: req.user.username
+            })
+        await transaction.save();
+        res.redirect('/transaction')
+    });
 
 
 router.get('/transaction/remove/:itemId',
-  isLoggedIn,
-  async (req, res, next) => {
-      console.log("inside /transaction/remove/:itemId")
-      await TransactionItem.deleteOne({_id:req.params.itemId});
-      res.redirect('/transaction')
-});
+    isLoggedIn,
+    async (req, res, next) => {
+        console.log("inside /transaction/remove/:itemId")
+        await TransactionItem.deleteOne({ _id: req.params.itemId });
+        res.redirect('/transaction')
+    });
 
 
 router.get('/transaction/edit/:itemId',
-  isLoggedIn,
-  async (req, res, next) => {
-      const item = await TransactionItem.findById({_id:req.params.itemId});
-      res.locals.item = item
-      res.render('edit')
-});
+    isLoggedIn,
+    async (req, res, next) => {
+        const item = await TransactionItem.findById({ _id: req.params.itemId });
+        res.locals.item = item
+        res.render('edit')
+    });
 
 
 router.post('/transaction/updateItem',
     isLoggedIn,
     async (req, res, next) => {
-        const { itemId, description, amount, category} = req.body;
-        const date = new Date(req.body.year, req.body.month-1, req.body.day);
+        const { itemId, description, amount, category } = req.body;
+        const date = new Date(req.body.year, req.body.month - 1, req.body.day);
         await TransactionItem.findOneAndUpdate(
             { _id: itemId },
             { $set: { description, amount, category, date } });
@@ -121,5 +122,39 @@ router.get('/transaction/groupByCategory',
         res.render('summarize', { results })
     }
 )
+
+router.post('/transaction/auth-question',
+    isLoggedIn,
+    async (req, res) => {
+        // console.log(req.user.SecurityQ1)
+        // console.log(req.body.securityAnswer)
+        const showHighValue = req.body.securityAnswer.toLowerCase() === req.user.SecurityQ1.toLowerCase();
+        // console.log(display)
+        const sortBy = req.query.sortBy
+        let items = []
+        if (sortBy == 'amount') {
+            items =
+                await TransactionItem.find({ userId: req.user._id }).sort({ amount: -1 })
+        } else if (sortBy == 'category') {
+            items =
+                await TransactionItem.find({ userId: req.user._id }).sort({ category: 1 })
+        } else if (sortBy == "description") {
+            items =
+                await TransactionItem.find({ userId: req.user._id }).sort({ description: 1 })
+        } else if (sortBy == "date") {
+            items =
+                await TransactionItem.find({ userId: req.user._id }).sort({ date: -1 })
+        } else {
+            items =
+                await TransactionItem.find({ userId: req.user._id })
+        }
+        res.render('transaction', { items, showHighValue })
+    });
+
+router.get('/transaction/auth-question',
+    isLoggedIn,
+    async (req, res, next) => {
+        res.render('auth-question')
+    });
 
 module.exports = router;

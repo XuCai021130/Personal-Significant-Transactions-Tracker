@@ -1,39 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- <link rel="stylesheet" href="../public/stylesheets/style.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            padding: 50px;
+            font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+        }
 
-<div class="row">
-      
-    <div class="col-sm-5">
-        <h2>Login</h2>
-        <form method="post" action="/login">
-            username: <input type="text"
-                             autocomplete="username"
-                             name="username"><br>
-            passphrase: <input  type="password"
-                                autocomplete="passphrase"
-                                name="passphrase"><br>
-            <input type="submit">
-        </form>
+        a {
+            color: #00B7FF;
+        }
+
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            background: #f5f5f5;
+        }
+
+        .login-form {
+            /* position: absolute; */
+            /* top: 50%;
+            left: 50%; */
+            /* transform: translate(-50%, -50%); */
+            width: 90%;
+            max-width: 450px;
+            background: #fff;
+            padding: 20px 30px;
+            box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+            border: 1px solid rgba(17, 12, 46, 0.15);
+            border-radius: 10px;
+        }
+
+        .login-form .form-title {
+            text-align: center;
+            font-size: 30px;
+            font-weight: 600;
+            margin: 20px 0px 30px;
+            color: #111;
+        }
+
+        .login-form .form-input {
+            margin: 10px 0px;
+        }
+
+        .login-form .form-input label,
+        .login-form .captcha label {
+            display: block;
+            font-size: 15px;
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .login-form .form-input input {
+            width: 100%;
+            padding: 10px;
+            outline: none;
+            border-radius: 4px;
+            border: 1px solid #888;
+            font-size: 15px;
+        }
+
+        .login-form .captcha {
+            margin: 15px 0px;
+        }
+
+        .login-form .captcha .preview {
+            color: #555;
+            width: 100%;
+            text-align: center;
+            height: 40px;
+            line-height: 40px;
+            letter-spacing: 8px;
+            border: 1px dashed #888;
+            border-radius: 4px;
+            font-family: "monospace";
+        }
+
+        .login-form .captcha .preview span {
+            display: inline-block;
+            user-select: none;
+        }
+
+        .login-form .captcha .captcha-form {
+            display: flex;
+        }
+
+        .login-form .captcha .captcha-form input {
+            width: 100%;
+            outline: none;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #888;
+        }
+
+        .login-form .captcha .captcha-form .captcha-refresh {
+            width: 40px;
+            border: none;
+            outline: none;
+            background: #888;
+            border-radius: 4px;
+            color: #eee;
+            cursor: pointer;
+        }
+
+        #login-btn {
+            margin-top: 5px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            text-transform: uppercase;
+            background: #4c81ff;
+            border-radius: 5px;
+            color: #fff;
+            transition: .3s;
+            cursor: pointer;
+        }
+
+        #login-btn:hover {
+            opacity: .8;
+        }
+
+        .row {
+            display: flex;
+            align-items: stretch;
+            /* Aligns children of the container to stretch to the same height */
+        }
+    </style>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+
+<body>
+    <div class="row">
+        <!-- Login section -->
+        <div class="col-sm-5 login-form" style="flex: 0 0 45%;">
+            <div class="form-title">
+                Login
+            </div>
+            <form method="post" action="/login">
+                <div class="form-input">
+                    <label for="username">Username: </label>
+                    <input type="text" autocomplete="username" name="username">
+                </div>
+                <div class="form-input">
+                    <label for="password">Password: </label>
+                    <input type="password" autocomplete="passphrase" name="passphrase">
+                </div>
+                <input type="hidden" id="captcha-value" name="trueCaptcha">
+                <!-- Hidden input for captcha value -->
+                <div class="captcha">
+                    <label for="captcha-input">Enter Captcha</label>
+                    <div class="preview"></div>
+                    <div class="captcha-form">
+                        <input type="text" id="captcha-form" placeholder="Enter captcha text" name="inputCaptcha">
+                        <button class="captcha-refresh">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-input">
+                    <button id="login-btn">Login</button>
+
+                </div>
+
+            </form>
+        </div>
+
+        <div class="col-sm-2" style="text-align:center; flex: 0 0 10%;">
+            OR
+        </div>
+
+        <!-- Sign up section -->
+        <div class="col-sm-5 login-form" style="flex: 0 0 45%;">
+            <div class="form-title">
+                Sign up here if you don't have an account yet
+            </div>
+            <form method="post" action="/signup">
+                <div class="form-input">
+                    <label for="username">Username: </label>
+                    <input type="text" autocomplete="username" name="username">
+                </div>
+                <div class="form-input">
+                    <label for="password">Password: </label>
+                    <input type="password" autocomplete="passphrase" name="passphrase">
+                </div>
+                <div class="form-input">
+                    <label for="password">Confirmed Password: </label>
+                    <input type="password" name="passphrase2">
+                </div>
+
+                Security Question:
+                <div class="form-input">
+                    1. Where is your birth place: <input type="text" name="SecurityQ1"><br>
+                    2. Name of your first pet: <input type="text" name="SecurityQ2"><br>
+                </div>
+
+                <div class="form-input">
+                    <button id="login-btn">Sign Up</button>
+                </div>
+
+            </form>
+        </div>
+
     </div>
-  
-    <div class="col-sm-2" style="text-align:center">
-        OR
-    </div>
-  
-    <div class="col-sm-5">
-        <h2>Signup</h2>
-        <form method="post" action="/signup">
-            username: <input type="text" autocomplete="username" name="username"><br>
-            password
-               <input type="password" autocomplete="passphrase" name="passphrase"><br>
-            confirm password:
-                <input type="password" name="passphrase2"><br>
-          
-            age: <input type="number" name="age"><br>
-          
-          
-            <input type="submit">
-        </form>
-    </div>
-</div>
+    <script>
+        (function () {
+            const fonts = ["cursive", "sans-serif", "serif", "monospace"];
+            let captchaValue = "";
+            function generateCaptcha() {
+                let value = btoa(Math.random() * 1000000000);
+                value = value.substr(0, 5 + Math.random() * 5);
+                captchaValue = value;
+                const hiddenInput = document.getElementById("captcha-value"); //find the hidden input tag by its id
+                hiddenInput.value = captchaValue
+            }
+            function setCaptcha() {
+                let html = captchaValue.split("").map((char) => {
+                    const rotate = -20 + Math.trunc(Math.random() * 30);
+                    const font = Math.trunc(Math.random() * fonts.length);
+                    return `<span
+        style="
+          transform:rotate(${rotate}deg);
+          font-family:${fonts[font]}
+        "
+      >${char}</span>`;
+                }).join("");
+                document.querySelector(".login-form .captcha .preview").innerHTML = html;
+            }
+            function initCaptcha() {
+                document.querySelector(".login-form .captcha .captcha-refresh").addEventListener("click", function () {
+                    generateCaptcha();
+                    setCaptcha();
+                });
+                generateCaptcha();
+                setCaptcha();
+            }
+            initCaptcha();
 
+            document.querySelector(".login-form #login-btn").addEventListener("click", function () {
+                let inputCaptchaValue = document.querySelector(".login-form .captcha input").value;
 
+            });
+        })();
+    </script>
+</body>
+
+</html>

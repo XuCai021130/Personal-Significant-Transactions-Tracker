@@ -1,128 +1,280 @@
+<style>
+  table {
+    width: 70%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
 
-<h1> Transactions for <%= user.username %> </h1>
+  th,
+  td {
+    border: 1px solid black;
+    /* Adds border around each cell */
+    text-align: left;
+    /* Aligns text to the left */
+    padding: 8px;
+    /* Adds space inside each cell */
+  }
 
-  <div class="row">
-    <div class="col">
-      <p> Here is the list of transactions you made! </p>
-    
-      <table>
-        <tr>
-            <td>
-                <a class="btn btn-primary" href="/transaction/groupByCategory">
-                    Group by category
-                </a>
-            </td>
-            <td>
-                <a class="btn btn-primary" href="/transaction?sortBy=category">
-                    Sort by category
-                </a>
-            </td>
-            <td>
-                <a class="btn btn-primary" href="/transaction?sortBy=amount">
-                    Sort by amount
-                </a>
-            </td>
-            <td>
-                <a class="btn btn-primary" href="/transaction?sortBy=description">
-                    Sort by description
-                </a>
-            </td>
-            <td>
-                <a class="btn btn-primary" href="/transaction?sortBy=date">
-                    Sort by date
-                </a>
-            </td>
-        </tr>
-    </table>
+  th {
+    background-color: #f2f2f2;
+    /* Adds a background color to header cells */
+  }
 
+  .normal-transactions {
+    height: 40%;
+    width: 55%;
+  }
+
+  .more-transactions {
+    height: 40%;
+    width: 60%;
+  }
+
+  .question {
+    background: black;
+    height: 10%;
+    width: 40%;
+    margin-bottom: 20px;
+  }
+
+  .add-transaction {
+    color: white;
+    background: darkblue;
+    height: 50%;
+    width: 35%;
+    text-align: center;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px;
+    /* flex-direction: column; */
+  }
+
+  .semi-transparent-box {
+    width: 200px;
+    height: 100px;
+
+    background-color: rgba(128, 128, 128, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+
+<div class="row">
+
+  <!-- table of normal transactions -->
+  <div class="col normal-transactions" style="margin-bottom: 20px;">
+    <h4 style="font-family: 'Times New Roman', Times, serif;"> Here is the list of transactions with amount less than
+      $500 you made! </h4><br>
     <table>
-        <thead>
+      <thead>
         <tr>
-            <th>description</th>
-            <th>amount</th>
-            <th>category</th>
-            <th>date</th>
-            <th>delete</th>
-            <th>edit</th>
+          <th>description</th>
+          <th>amount</th>
+          <th>category</th>
+          <th>date</th>
+          <th>delete</th>
+          <th>edit</th>
         </tr>
-        </thead>>
-    <tbody>
-        <% items.forEach(item => {%>
+      </thead>
+      <tbody>
+        <% items.forEach(item=> { %>
+          <% if (item.amount < 500) { %>
             <tr>
-                <td> <%= item.description %> </td>
-                <td><%= item.amount %></td>
-                <td><%= item.category %></td>
-                <td><%= item.date %></td>
-                <td>
-                <a href="/transaction/remove/<%=item._id %>">
-                    <i class="bi bi-trash"></i>
+              <td>
+                <%= item.description %>
+              </td>
+              <td>
+                <%= item.amount %>
+              </td>
+              <td>
+                <%= item.category %>
+              </td>
+              <td>
+                <%= item.date %>
+              </td>
+              <td>
+                <a href="/transaction/remove/<%= item._id %>">
+                  <i class="bi bi-trash"></i>
                 </a>
-                </td>    
-                <td>
-                <a href="/transaction/edit/<%=item._id %>">
-                    <i class="bi bi-pencil-square"></i>
-                    </a>
-                </td>
+              </td>
+              <td>
+                <a href="/transaction/edit/<%= item._id %>">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+              </td>
             </tr>
-            
-            <% }) %>
+            <% } %>
 
-    </tbody>
+              <% if (showHighValue) { %>
+                <% if (item.amount> 500) { %>
+                  <tr>
+                    <td>
+                      <%= item.description %>
+                    </td>
+                    <td>
+                      <%= item.amount %>
+                    </td>
+                    <td>
+                      <%= item.category %>
+                    </td>
+                    <td>
+                      <%= item.date %>
+                    </td>
+                    <td>
+                      <a href="/transaction/remove/<%= item._id %>">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                    <td>
+                      <a href="/transaction/edit/<%= item._id %>">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <% } %>
+                    <% } %>
+                      <% }) %>
+      </tbody>
     </table>
+  </div>
 
-        <h1>Add a transaction</h1>
-        <form method="post" action="transaction">
-            <label for="description">Description:</label>
-            <input type="text" id="description" name="description"><br><br>
-          
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" name="amount"><br><br>
-          
-            <label for="category">Category:</label>
-            <select id="category" name="category">
-              <option value="food">Food</option>
-              <option value="clothing">Clothing</option>
-              <option value="transportation">Transportation</option>
-              <option value="housing">Housing</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="utilities">Utilities</option>
-            </select><br><br>
-            <label for="date">Date:</label>
-            <select name="year" id="year" required>
-              <option value="">-- Year --</option>
-              <script>
-                const currentYear = new Date().getFullYear();
-                for (let year = currentYear; year >= currentYear - 10; year--) {
-                  document.write(`<option value="${year}">${year}</option>`);
-                }
-              </script>
-            </select>
-          
-            <select name="month" id="month" required>
-              <option value="">-- Month --</option>
-              <option value="01">January</option>
-              <option value="02">February</option>
-              <option value="03">March</option>
-              <option value="04">April</option>
-              <option value="05">May</option>
-              <option value="06">June</option>
-              <option value="07">July</option>
-              <option value="08">August</option>
-              <option value="09">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
-          
-            <select name="day" id="day" required>
-              <option value="">-- Day --</option>
-              <script>
-                for (let day = 1; day <= 31; day++) {
-                  document.write(`<option value="${day}">${day}</option>`);
-                }
-              </script>
-            </select><br><br>          
-            <input type="submit" value="store">
-          </form>
-    </div>
+  <!-- more sensitive transaction -->
+  <!-- <h4 style="font-family: 'Times New Roman', Times, serif;"> Transactions more than $500 </h4><br> -->
+  <!-- <div style="margin-bottom: 20px;" class="more-transactions">
+    <table>
+      <thead>
+        <tr>
+          <th>description</th>
+          <th>amount</th>
+          <th>category</th>
+          <th>date</th>
+          <th>delete</th>
+          <th>edit</th>
+        </tr>
+      </thead>
 
+      <tbody style="display:none;">
+        <!-- <% if (!showHighValue) { %>
+          <div class="semi-transparent-box">
+            Currently not visible
+          </div>
+          <% } %> -->
+
+  <!-- <% if (showHighValue) { %>
+          <% items.forEach(item=> { %>
+            <% if (500 < item.amount < 5000) { %>
+              <tr>
+                <td>
+                  <%= item.description %>
+                </td>
+                <td>
+                  <%= item.amount %>
+                </td>
+                <td>
+                  <%= item.category %>
+                </td>
+                <td>
+                  <%= item.date %>
+                </td>
+                <td>
+                  <a href="/transaction/remove/<%= item._id %>">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+                <td>
+                  <a href="/transaction/edit/<%= item._id %>">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                </td>
+              </tr>
+              <% } %>
+                <% }); %>
+                  <% } %> -->
+  </tbody>
+  </table>
+
+
+</div> -->
+
+<div class="question">
+
+  <a href='/transaction/auth-question' style="color: white;">Click here if you want to see more transactions</a>
+</div>
+
+<!-- add a transaction -->
+<div class="add-transaction">
+  <h2>Add a transaction</h2>
+  <form method="post" action="transaction" style="font-size: 15px;">
+    <label for="category">Category:</label>
+    <select id="category" name="category">
+      <option value="food">Food</option>
+      <option value="clothing">Clothing</option>
+      <option value="transportation">Transportation</option>
+      <option value="housing">Housing</option>
+      <option value="entertainment">Entertainment</option>
+      <option value="utilities">Utilities</option>
+      <option value="transaction">Transaction</option>
+    </select><br><br>
+
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount">$<br><br>
+
+    <label for="date">Date:</label>
+    <select name="year" id="year" required>
+      <option value="">-- Year --</option>
+      <script>
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= currentYear - 10; year--) {
+          document.write(`<option value="${year}">${year}</option>`);
+        }
+      </script>
+    </select>
+
+    <select name="month" id="month" required>
+      <option value="">-- Month --</option>
+      <option value="01">January</option>
+      <option value="02">February</option>
+      <option value="03">March</option>
+      <option value="04">April</option>
+      <option value="05">May</option>
+      <option value="06">June</option>
+      <option value="07">July</option>
+      <option value="08">August</option>
+      <option value="09">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
+
+    <select name="day" id="day" required>
+      <option value="">-- Day --</option>
+      <script>
+        for (let day = 1; day <= 31; day++) {
+          document.write(`<option value="${day}">${day}</option>`);
+        }
+      </script>
+    </select>
+    <br><br>
+    <label for="description">Detailed Description:</label>
+    <textarea name="description" style="width: 30%; height: 100px;"
+      placeholder="Add important information of this transaction " required></textarea>
+    <br><br>
+    <input type="submit" value="store">
+  </form>
+</div>
+
+</div>
+
+<script>
+</script>
