@@ -200,11 +200,15 @@
                     <label for="password">Confirmed Password: </label>
                     <input type="password" name="passphrase2">
                 </div>
+                <div class="form-input">
+                    <label for="email">Email Address: </label>
+                    <input type="text">
+                </div>
 
                 Security Question:
                 <div class="form-input">
                     1. Where is your birth place: <input type="text" name="SecurityQ1"><br>
-                    2. Name of your first pet: <input type="text" name="SecurityQ2"><br>
+                    2. What is the name of your first pet: <input type="text" name="SecurityQ2"><br>
                 </div>
 
                 <div class="form-input">
@@ -228,7 +232,7 @@
             }
             function setCaptcha() {
                 let html = captchaValue.split("").map((char) => {
-                    const rotate = -20 + Math.trunc(Math.random() * 30);
+                    const rotate = -30 + Math.trunc(Math.random() * 100);
                     const font = Math.trunc(Math.random() * fonts.length);
                     return `<span
         style="

@@ -113,7 +113,10 @@ router.post('/signup',
       if (passphrase != passphrase2) {
         res.redirect('/login')
       } else {
+        console.log("password:", passphrase);
+
         const encrypted = await bcrypt.hash(passphrase, saltRounds);
+        console.log("hashedPassword:", encrypted);
 
         // check to make sure that username is not already taken!!
         const duplicates = await User.find({ username })
